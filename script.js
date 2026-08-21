@@ -101,26 +101,50 @@ function saveData() {
     liabilities: liabilities
   };
 
-  localStorage.setItem("netWorthTrackerData", JSON.stringify(data));
+  try {
+    localStorage.setItem("netWorthTrackerData", JSON.stringify(data));
+    showSaveStatus("Saved on this browser.");
+  } catch (error) {
+    showSaveStatus("Could not save. Browser storage may be blocked.");
+  }
 }
 
 function loadData() {
-  const savedText = localStorage.getItem("netWorthTrackerData");
+  let savedText = "";
+
+  try {
+    savedText = localStorage.getItem("netWorthTrackerData");
+  } catch (error) {
+    return emptyData();
+  }
 
   if (!savedText) {
-    return {
-      assets: [],
-      liabilities: []
-    };
+    return emptyData();
   }
 
   try {
-    return JSON.parse(savedText);
-  } catch (error) {
+    const parsedData = JSON.parse(savedText);
     return {
-      assets: [],
-      liabilities: []
+      assets: Array.isArray(parsedData.assets) ? parsedData.assets : [],
+      liabilities: Array.isArray(parsedData.liabilities) ? parsedData.liabilities : []
     };
+  } catch (error) {
+    return emptyData();
+  }
+}
+
+function emptyData() {
+  return {
+    assets: [],
+    liabilities: []
+  };
+}
+
+function showSaveStatus(message) {
+  const status = document.getElementById("saveStatus");
+
+  if (status) {
+    status.textContent = message;
   }
 }
 
