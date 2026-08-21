@@ -3,6 +3,10 @@ const assets = savedData.assets;
 const liabilities = savedData.liabilities;
 let editingAssetIndex = null;
 let editingLiabilityIndex = null;
+let chartSlices = [];
+let chartCenterX = 170;
+let chartCenterY = 160;
+let chartRadius = 115;
 
 const assetColors = {
   Cash: "#ff82b8",
@@ -64,6 +68,9 @@ document.getElementById("liabilityCancelButton").addEventListener("click", funct
   document.getElementById("liabilityForm").reset();
   stopEditingLiability();
 });
+
+document.getElementById("netWorthChart").addEventListener("mousemove", showChartTooltip);
+document.getElementById("netWorthChart").addEventListener("mouseleave", hideChartTooltip);
 
 function updatePage() {
   const totalAssets = addAmounts(assets);
@@ -211,6 +218,7 @@ function drawChart() {
   const total = slices.reduce((sum, slice) => sum + slice.amount, 0);
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  chartSlices = [];
 
   if (total === 0) {
     ctx.fillStyle = "#7c2452";
@@ -221,20 +229,27 @@ function drawChart() {
   }
 
   let startAngle = -Math.PI / 2;
-  const centerX = 170;
-  const centerY = 160;
-  const radius = 115;
+  chartCenterX = 170;
+  chartCenterY = 160;
+  chartRadius = 115;
 
   slices.forEach(function (slice, index) {
     const angle = (slice.amount / total) * Math.PI * 2;
     const endAngle = startAngle + angle;
 
     ctx.beginPath();
-    ctx.moveTo(centerX, centerY);
-    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+    ctx.moveTo(chartCenterX, chartCenterY);
+    ctx.arc(chartCenterX, chartCenterY, chartRadius, startAngle, endAngle);
     ctx.closePath();
     ctx.fillStyle = slice.color;
     ctx.fill();
+
+    chartSlices.push({
+      label: slice.label,
+      amount: slice.amount,
+      startAngle: startAngle,
+      endAngle: endAngle
+    });
 
     ctx.fillStyle = "#7c2452";
     ctx.font = "14px Arial";
@@ -245,6 +260,51 @@ function drawChart() {
     ctx.fillRect(305, 49 + index * 24, 14, 14);
 
     startAngle = endAngle;
+  });
+}
+
+function showChartTooltip(event) {
+  const canvas = document.getElementById("netWorthChart");
+  const tooltip = document.getElementById("chartTooltip");
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const mouseX = (event.clientX - rect.left) * scaleX;
+  const mouseY = (event.clientY - rect.top) * scaleY;
+  const slice = findHoveredSlice(mouseX, mouseY);
+
+  if (!slice) {
+    hideChartTooltip();
+    return;
+  }
+
+  tooltip.textContent = `${slice.label}: ${money(slice.amount)}`;
+  tooltip.style.left = `${event.clientX - rect.left}px`;
+  tooltip.style.top = `${event.clientY - rect.top}px`;
+  tooltip.hidden = false;
+}
+
+function hideChartTooltip() {
+  document.getElementById("chartTooltip").hidden = true;
+}
+
+function findHoveredSlice(mouseX, mouseY) {
+  const dx = mouseX - chartCenterX;
+  const dy = mouseY - chartCenterY;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  if (distance > chartRadius) {
+    return null;
+  }
+
+  let angle = Math.atan2(dy, dx);
+
+  if (angle < -Math.PI / 2) {
+    angle += Math.PI * 2;
+  }
+
+  return chartSlices.find(function (slice) {
+    return angle >= slice.startAngle && angle <= slice.endAngle;
   });
 }
 

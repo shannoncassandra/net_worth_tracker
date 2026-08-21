@@ -156,8 +156,29 @@ button {
   text-align: center;
 }
 
+.chart-wrap {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
 canvas {
   max-width: 100%;
+}
+
+.chart-tooltip {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  padding: 8px 12px;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  background: var(--berry);
+  border-radius: 999px;
+  box-shadow: 0 8px 18px var(--shadow);
+  transform: translate(12px, -50%);
+  white-space: nowrap;
 }
 
 .chart-note {
