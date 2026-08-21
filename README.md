@@ -16,6 +16,8 @@ Double-click `index.html`.
 
 You can also right-click `index.html` and choose **Open with** your browser.
 
-## Important
+## Saving Data
 
-This first version does not save your entries after you close or refresh the page. That keeps the code very simple while you learn.
+Your entries are saved in your browser with `localStorage`.
+
+That means your data stays on the same device and browser after refreshing or closing the page. Other people who open the GitHub Pages website on their own device will not see your entries.

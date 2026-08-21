@@ -1,5 +1,6 @@
-const assets = [];
-const liabilities = [];
+const savedData = loadData();
+const assets = savedData.assets;
+const liabilities = savedData.liabilities;
 
 const assetColors = {
   Cash: "#ff82b8",
@@ -28,6 +29,7 @@ document.getElementById("assetForm").addEventListener("submit", function (event)
   });
 
   this.reset();
+  saveData();
   updatePage();
 });
 
@@ -41,6 +43,7 @@ document.getElementById("liabilityForm").addEventListener("submit", function (ev
   });
 
   this.reset();
+  saveData();
   updatePage();
 });
 
@@ -82,12 +85,43 @@ function showList(listId, items, removeFunction) {
 
 function removeAsset(index) {
   assets.splice(index, 1);
+  saveData();
   updatePage();
 }
 
 function removeLiability(index) {
   liabilities.splice(index, 1);
+  saveData();
   updatePage();
+}
+
+function saveData() {
+  const data = {
+    assets: assets,
+    liabilities: liabilities
+  };
+
+  localStorage.setItem("netWorthTrackerData", JSON.stringify(data));
+}
+
+function loadData() {
+  const savedText = localStorage.getItem("netWorthTrackerData");
+
+  if (!savedText) {
+    return {
+      assets: [],
+      liabilities: []
+    };
+  }
+
+  try {
+    return JSON.parse(savedText);
+  } catch (error) {
+    return {
+      assets: [],
+      liabilities: []
+    };
+  }
 }
 
 function drawChart() {
