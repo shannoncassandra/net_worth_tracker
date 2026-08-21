@@ -10,6 +10,7 @@ let chartRadius = 115;
 
 const assetColors = {
   Cash: "#ff82b8",
+  Cryptocurrency: "#f7b731",
   Retirement: "#e83e8c",
   Brokerage: "#ffb3d1",
   "Real Estate": "#ff6aa8",
@@ -344,7 +345,9 @@ function cleanName(name) {
 function money(amount) {
   return amount.toLocaleString("en-US", {
     style: "currency",
-    currency: "USD"
+    currency: "USD",
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0
   });
 }
 
