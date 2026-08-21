@@ -29,6 +29,16 @@
         </div>
       </section>
 
+      <section class="panel chart-panel">
+        <h2>Type Breakdown</h2>
+        <div class="chart-wrap">
+          <canvas id="netWorthChart" width="520" height="320"></canvas>
+          <div id="chartTooltip" class="chart-tooltip" hidden></div>
+        </div>
+        <p class="chart-note">Only assets appear here. Liabilities with the same name are deducted first.</p>
+        <p id="saveStatus" class="save-status">Saved on this browser only.</p>
+      </section>
+
       <section class="forms">
         <div class="panel">
           <h2>Assets</h2>
@@ -68,18 +78,8 @@
           <ul id="liabilityList" class="money-list"></ul>
         </div>
       </section>
-
-      <section class="panel chart-panel">
-        <h2>Type Breakdown</h2>
-        <div class="chart-wrap">
-          <canvas id="netWorthChart" width="520" height="320"></canvas>
-          <div id="chartTooltip" class="chart-tooltip" hidden></div>
-        </div>
-        <p class="chart-note">Only assets appear here. Liabilities with the same name are deducted first.</p>
-        <p id="saveStatus" class="save-status">Saved on this browser only.</p>
-      </section>
     </main>
 
-    <script src="script.js?v=5"></script>
+    <script src="script.js?v=6"></script>
   </body>
 </html>

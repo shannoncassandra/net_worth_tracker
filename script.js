@@ -94,8 +94,20 @@ function addAmounts(items) {
 function showList(listId, items, editFunction, removeFunction) {
   const list = document.getElementById(listId);
   list.innerHTML = "";
+  const sortedItems = items
+    .map(function (item, originalIndex) {
+      return {
+        item: item,
+        originalIndex: originalIndex
+      };
+    })
+    .sort(function (a, b) {
+      return a.item.type.localeCompare(b.item.type) || a.item.name.localeCompare(b.item.name);
+    });
 
-  items.forEach(function (item, index) {
+  sortedItems.forEach(function (entry) {
+    const item = entry.item;
+    const originalIndex = entry.originalIndex;
     const row = document.createElement("li");
     row.innerHTML = `
       <span>${item.name} (${item.type})</span>
@@ -104,10 +116,10 @@ function showList(listId, items, editFunction, removeFunction) {
       <button type="button">Remove</button>
     `;
     row.querySelectorAll("button")[0].addEventListener("click", function () {
-      editFunction(index);
+      editFunction(originalIndex);
     });
     row.querySelectorAll("button")[1].addEventListener("click", function () {
-      removeFunction(index);
+      removeFunction(originalIndex);
     });
     list.appendChild(row);
   });
