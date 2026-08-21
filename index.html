@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Net Worth Tracker</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main class="page">
+      <header class="hero">
+        <p class="flower-line">✿ ✿ ✿</p>
+        <h1>Net Worth Tracker</h1>
+        <p>Add your assets and liabilities to see a simple net worth snapshot.</p>
+      </header>
+
+      <section class="summary" aria-label="Totals">
+        <div>
+          <span>Total Assets</span>
+          <strong id="totalAssets">$0.00</strong>
+        </div>
+        <div>
+          <span>Total Liabilities</span>
+          <strong id="totalLiabilities">$0.00</strong>
+        </div>
+        <div>
+          <span>Net Worth</span>
+          <strong id="netWorth">$0.00</strong>
+        </div>
+      </section>
+
+      <section class="forms">
+        <div class="panel">
+          <h2>Assets</h2>
+          <form id="assetForm" class="entry-form">
+            <input id="assetName" type="text" placeholder="Name" required>
+            <select id="assetType">
+              <option>Cash</option>
+              <option>Retirement</option>
+              <option>Brokerage</option>
+              <option>Real Estate</option>
+              <option>Vehicle</option>
+              <option>Other</option>
+            </select>
+            <input id="assetAmount" type="number" placeholder="Amount" min="0" step="0.01" required>
+            <button type="submit">Add Asset</button>
+          </form>
+          <ul id="assetList" class="money-list"></ul>
+        </div>
+
+        <div class="panel">
+          <h2>Liabilities</h2>
+          <form id="liabilityForm" class="entry-form">
+            <input id="liabilityName" type="text" placeholder="Name" required>
+            <select id="liabilityType">
+              <option>Credit Card</option>
+              <option>Student Loan</option>
+              <option>Auto Loan</option>
+              <option>Mortgage</option>
+              <option>Other</option>
+            </select>
+            <input id="liabilityAmount" type="number" placeholder="Amount" min="0" step="0.01" required>
+            <button type="submit">Add Debt</button>
+          </form>
+          <ul id="liabilityList" class="money-list"></ul>
+        </div>
+      </section>
+
+      <section class="panel chart-panel">
+        <h2>Type Breakdown</h2>
+        <canvas id="netWorthChart" width="520" height="320"></canvas>
+        <p class="chart-note">Pink slices are assets. Purple slices are liabilities.</p>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
