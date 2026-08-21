@@ -21,3 +21,7 @@ You can also right-click `index.html` and choose **Open with** your browser.
 Your entries are saved in your browser with `localStorage`.
 
 That means your data stays on the same device and browser after refreshing or closing the page. Other people who open the GitHub Pages website on their own device will not see your entries.
+
+## Chart
+
+The pie chart only shows assets. If a liability has the same name as an asset, the liability amount is subtracted from that asset before the chart is drawn.

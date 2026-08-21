@@ -43,7 +43,8 @@
               <option>Other</option>
             </select>
             <input id="assetAmount" type="number" placeholder="Amount" min="0" step="0.01" required>
-            <button type="submit">Add Asset</button>
+            <button id="assetSubmitButton" type="submit">Add Asset</button>
+            <button id="assetCancelButton" class="secondary-button" type="button" hidden>Cancel Edit</button>
           </form>
           <ul id="assetList" class="money-list"></ul>
         </div>
@@ -60,7 +61,8 @@
               <option>Other</option>
             </select>
             <input id="liabilityAmount" type="number" placeholder="Amount" min="0" step="0.01" required>
-            <button type="submit">Add Debt</button>
+            <button id="liabilitySubmitButton" type="submit">Add Debt</button>
+            <button id="liabilityCancelButton" class="secondary-button" type="button" hidden>Cancel Edit</button>
           </form>
           <ul id="liabilityList" class="money-list"></ul>
         </div>
@@ -69,11 +71,11 @@
       <section class="panel chart-panel">
         <h2>Type Breakdown</h2>
         <canvas id="netWorthChart" width="520" height="320"></canvas>
-        <p class="chart-note">Pink slices are assets. Purple slices are liabilities.</p>
+        <p class="chart-note">Only assets appear here. Liabilities with the same name are deducted first.</p>
         <p id="saveStatus" class="save-status">Saved on this browser only.</p>
       </section>
     </main>
 
-    <script src="script.js?v=2"></script>
+    <script src="script.js?v=3"></script>
   </body>
 </html>

@@ -1,6 +1,8 @@
 const savedData = loadData();
 const assets = savedData.assets;
 const liabilities = savedData.liabilities;
+let editingAssetIndex = null;
+let editingLiabilityIndex = null;
 
 const assetColors = {
   Cash: "#ff82b8",
@@ -11,22 +13,21 @@ const assetColors = {
   Other: "#f58fcb"
 };
 
-const liabilityColors = {
-  "Credit Card": "#a56cff",
-  "Student Loan": "#c3a0ff",
-  "Auto Loan": "#8f55e8",
-  Mortgage: "#d7c2ff",
-  Other: "#b88cff"
-};
-
 document.getElementById("assetForm").addEventListener("submit", function (event) {
   event.preventDefault();
 
-  assets.push({
+  const asset = {
     name: document.getElementById("assetName").value,
     type: document.getElementById("assetType").value,
     amount: Number(document.getElementById("assetAmount").value)
-  });
+  };
+
+  if (editingAssetIndex === null) {
+    assets.push(asset);
+  } else {
+    assets[editingAssetIndex] = asset;
+    stopEditingAsset();
+  }
 
   this.reset();
   saveData();
@@ -36,15 +37,32 @@ document.getElementById("assetForm").addEventListener("submit", function (event)
 document.getElementById("liabilityForm").addEventListener("submit", function (event) {
   event.preventDefault();
 
-  liabilities.push({
+  const liability = {
     name: document.getElementById("liabilityName").value,
     type: document.getElementById("liabilityType").value,
     amount: Number(document.getElementById("liabilityAmount").value)
-  });
+  };
+
+  if (editingLiabilityIndex === null) {
+    liabilities.push(liability);
+  } else {
+    liabilities[editingLiabilityIndex] = liability;
+    stopEditingLiability();
+  }
 
   this.reset();
   saveData();
   updatePage();
+});
+
+document.getElementById("assetCancelButton").addEventListener("click", function () {
+  document.getElementById("assetForm").reset();
+  stopEditingAsset();
+});
+
+document.getElementById("liabilityCancelButton").addEventListener("click", function () {
+  document.getElementById("liabilityForm").reset();
+  stopEditingLiability();
 });
 
 function updatePage() {
@@ -56,8 +74,8 @@ function updatePage() {
   document.getElementById("totalLiabilities").textContent = money(totalLiabilities);
   document.getElementById("netWorth").textContent = money(netWorth);
 
-  showList("assetList", assets, removeAsset);
-  showList("liabilityList", liabilities, removeLiability);
+  showList("assetList", assets, editAsset, removeAsset);
+  showList("liabilityList", liabilities, editLiability, removeLiability);
   drawChart();
 }
 
@@ -65,7 +83,7 @@ function addAmounts(items) {
   return items.reduce((total, item) => total + item.amount, 0);
 }
 
-function showList(listId, items, removeFunction) {
+function showList(listId, items, editFunction, removeFunction) {
   const list = document.getElementById(listId);
   list.innerHTML = "";
 
@@ -74,25 +92,63 @@ function showList(listId, items, removeFunction) {
     row.innerHTML = `
       <span>${item.name} (${item.type})</span>
       <strong>${money(item.amount)}</strong>
+      <button type="button">Edit</button>
       <button type="button">Remove</button>
     `;
-    row.querySelector("button").addEventListener("click", function () {
+    row.querySelectorAll("button")[0].addEventListener("click", function () {
+      editFunction(index);
+    });
+    row.querySelectorAll("button")[1].addEventListener("click", function () {
       removeFunction(index);
     });
     list.appendChild(row);
   });
 }
 
+function editAsset(index) {
+  const asset = assets[index];
+  editingAssetIndex = index;
+  document.getElementById("assetName").value = asset.name;
+  document.getElementById("assetType").value = asset.type;
+  document.getElementById("assetAmount").value = asset.amount;
+  document.getElementById("assetSubmitButton").textContent = "Update Asset";
+  document.getElementById("assetCancelButton").hidden = false;
+}
+
+function editLiability(index) {
+  const liability = liabilities[index];
+  editingLiabilityIndex = index;
+  document.getElementById("liabilityName").value = liability.name;
+  document.getElementById("liabilityType").value = liability.type;
+  document.getElementById("liabilityAmount").value = liability.amount;
+  document.getElementById("liabilitySubmitButton").textContent = "Update Debt";
+  document.getElementById("liabilityCancelButton").hidden = false;
+}
+
 function removeAsset(index) {
   assets.splice(index, 1);
+  stopEditingAsset();
   saveData();
   updatePage();
 }
 
 function removeLiability(index) {
   liabilities.splice(index, 1);
+  stopEditingLiability();
   saveData();
   updatePage();
+}
+
+function stopEditingAsset() {
+  editingAssetIndex = null;
+  document.getElementById("assetSubmitButton").textContent = "Add Asset";
+  document.getElementById("assetCancelButton").hidden = true;
+}
+
+function stopEditingLiability() {
+  editingLiabilityIndex = null;
+  document.getElementById("liabilitySubmitButton").textContent = "Add Debt";
+  document.getElementById("liabilityCancelButton").hidden = true;
 }
 
 function saveData() {
@@ -160,7 +216,7 @@ function drawChart() {
     ctx.fillStyle = "#7c2452";
     ctx.font = "18px Arial";
     ctx.textAlign = "center";
-    ctx.fillText("Add assets or liabilities to see the chart", canvas.width / 2, canvas.height / 2);
+    ctx.fillText("Add assets to see the chart", canvas.width / 2, canvas.height / 2);
     return;
   }
 
@@ -194,26 +250,35 @@ function drawChart() {
 
 function buildSlices() {
   const groups = {};
-
-  assets.forEach(function (asset) {
-    const key = "Asset: " + asset.type;
-    groups[key] = (groups[key] || 0) + asset.amount;
-  });
+  const liabilitiesByName = {};
 
   liabilities.forEach(function (liability) {
-    const key = "Debt: " + liability.type;
-    groups[key] = (groups[key] || 0) + liability.amount;
+    const key = cleanName(liability.name);
+    liabilitiesByName[key] = (liabilitiesByName[key] || 0) + liability.amount;
   });
 
-  return Object.keys(groups).map(function (key) {
-    const type = key.replace("Asset: ", "").replace("Debt: ", "");
-    const isAsset = key.startsWith("Asset:");
+  assets.forEach(function (asset) {
+    const assetName = cleanName(asset.name);
+    const matchingDebt = liabilitiesByName[assetName] || 0;
+    const remainingValue = Math.max(asset.amount - matchingDebt, 0);
+    liabilitiesByName[assetName] = Math.max(matchingDebt - asset.amount, 0);
+
+    if (remainingValue > 0) {
+      groups[asset.type] = (groups[asset.type] || 0) + remainingValue;
+    }
+  });
+
+  return Object.keys(groups).map(function (type) {
     return {
-      label: key,
-      amount: groups[key],
-      color: isAsset ? assetColors[type] : liabilityColors[type]
+      label: type,
+      amount: groups[type],
+      color: assetColors[type]
     };
   });
+}
+
+function cleanName(name) {
+  return name.trim().toLowerCase();
 }
 
 function money(amount) {
